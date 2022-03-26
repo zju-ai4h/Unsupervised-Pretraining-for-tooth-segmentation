@@ -45,7 +45,7 @@ We process the original ``.stl`` format for faster training. A set of preprocess
 │   ├── Face normal[0]    
 │   ├── Face normal[1]  
 │   ├── Face normal[2]  
-│   └── label
+│   └── label  
 Face center, shape descriptor and face normal have been defined in our paper.
 ### Train
 #### Pretrain

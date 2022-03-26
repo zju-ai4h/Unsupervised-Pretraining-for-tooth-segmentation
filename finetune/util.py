@@ -48,26 +48,17 @@ class IOStream():
 
         
 def load_state_with_same_shape(model, weights):
-  # weights['conv1.kernel'] = weights['conv1.kernel'].repeat([1,3,1])/3.0
-  model_state = model.state_dict()
-  if list(weights.keys())[0].startswith('module.'):
-    logging.info("Loading multigpu weights with module. prefix...")
-    weights = {k.partition('module.')[2]:weights[k] for k in weights.keys()}
-  
-  if list(weights.keys())[0].startswith('encoder.'):
-    logging.info("Loading multigpu weights with encoder. prefix...")
-    weights = {k.partition('encoder.')[2]:weights[k] for k in weights.keys()}
-  
-  # print(weights.items())
-  # print("===================")
-  # print("===================")
-  # print("===================")
-  # print("===================")
-  # print("===================")
-  # print(model_state)
-  
-  filtered_weights = {
-      k: v for k, v in weights.items() if k in model_state  and v.size() == model_state[k].size() 
-  }
-  logging.info("Loading weights:" + ', '.join(filtered_weights.keys()))
-  return filtered_weights
+    model_state = model.state_dict()
+    if list(weights.keys())[0].startswith('module.'):
+        logging.info("Loading multigpu weights with module. prefix...")
+        weights = {k.partition('module.')[2]:weights[k] for k in weights.keys()}
+
+    if list(weights.keys())[0].startswith('encoder.'):
+        logging.info("Loading multigpu weights with encoder. prefix...")
+        weights = {k.partition('encoder.')[2]:weights[k] for k in weights.keys()}
+
+    filtered_weights = {
+        k: v for k, v in weights.items() if k in model_state  and v.size() == model_state[k].size() 
+    }
+    logging.info("Loading weights:" + ', '.join(filtered_weights.keys()))
+    return filtered_weights

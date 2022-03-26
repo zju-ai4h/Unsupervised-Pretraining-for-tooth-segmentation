@@ -23,7 +23,7 @@ def generate_findices(face_numbers, num_points):
 
 class TeethDataset(Dataset):
 
-    def __init__(self, num_points=40000, partition='train'):
+    def __init__(self, num_points=20000, partition='train'):
         self.num_points = num_points
         self.partition = partition
         self.num_categories = 2
@@ -32,7 +32,7 @@ class TeethDataset(Dataset):
               'val': 'teeth_val.txt',
               'test': 'teeth_test.txt'
         }
-        self.data_paths = read_txt(os.path.join('/home/xiaoxuan/Data/train/splits', self.DATA_PATH_FILE[self.partition]))
+        self.data_paths = read_txt(os.path.join('./dataset', self.DATA_PATH_FILE[self.partition]))
 
     def load_ply(self, index):
         filepath = self.data_paths[index]
@@ -57,11 +57,4 @@ class TeethDataset(Dataset):
     
     def __len__(self):
         num_data = len(self.data_paths)
-        return num_data
-if __name__ == '__main__':
-    dataset = TeethDataset(partition='train')
-    temp = dataset[0]
-    print(temp[0].shape, temp[1].shape, temp[2])
-        
-    
-    
+        return num_data   

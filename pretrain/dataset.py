@@ -173,10 +173,3 @@ class TeethPairDataset(PairDataset):
 
     def __getitem__(self, idx):
         return self.get_correspondences(idx)
-
-if __name__ == '__main__':
-    from parser import get_args
-    args = get_args()
-    dataset =  TeethPairDataset('train', args)
-    temp = dataset[0]
-    

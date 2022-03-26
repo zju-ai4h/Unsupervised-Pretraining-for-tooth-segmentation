@@ -69,3 +69,5 @@ Train from scratch:
 ## Inference
 During fine-tuning, we only sample 20,000 points to train and test. If you want to obtain the labels of unsampled points, you can apply kNN strategy to the segmentation result. Meanwhile, there are also many methods to achieve it, e.g. putting all faces into the model and graph-cut. So you can choose the appropriate method for post-processing with your needs.
 ## Visualization
+![Visualization](figure/visualization.png)  
+(a) Gournd Truth, (b) Tran from scratch, (c) Ours

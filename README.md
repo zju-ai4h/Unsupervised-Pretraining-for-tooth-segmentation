@@ -46,6 +46,7 @@ We process the original ``.stl`` format for faster training. A set of preprocess
 │   ├── Face normal[1]  
 │   ├── Face normal[2]  
 │   └── label
+Face center, shape descriptor and face normal have been defined in our paper.
 ### Train
 #### Pretrain
 ```python  
@@ -53,7 +54,7 @@ We process the original ``.stl`` format for faster training. A set of preprocess
 ```
 #### Finetune
 For *debugging purpose only*, we provide a pretrained model in ``finetune/pretrained_weights/checkpoint.pth``.   
-fine-tuning:  
+Fine-tuning:  
 ```python  
  CUDA_VISIBLE_DEVICES=0,1 python ddp_main.py --pretrain=./pretrained_weights/checkpoint.pth --lenient_weight_loading=True --exp_name=finetune
 ```  
@@ -61,4 +62,5 @@ Train from scratch:
 ```python  
  CUDA_VISIBLE_DEVICES=0,1 python ddp_main.py --exp_name=from_scratch
 ```
-
+## Inference
+During fine-tuning, we only sample 20,000 faces to train and test. If you want to obtain the labels of unsampled faces, you can apply kNN strategy to the segmenation result. Meanwhile, there are also many method to achieve it, e.g. put all faces into the model and graph-cut. So you can choose the appropriate method for post-processing with your needs.

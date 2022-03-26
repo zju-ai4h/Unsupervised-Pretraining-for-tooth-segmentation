@@ -32,7 +32,7 @@ def get_args():
 
     parser.add_argument('--npos', type = int, default = 4096)
 
-    parser.add_argument('--lr_update_freq', type = int, default = 500)
+    parser.add_argument('--lr_update_freq', type = int, default = 1000)
 
     parser.add_argument('--exp_name', type = str, default = 'pretrain')
 

@@ -143,8 +143,6 @@ def test(model, test_loader, device, args, io):
     with torch.no_grad():
         # Try to load models
         model.load_state_dict(torch.load(os.path.join(args.model_root)))
-        for name,parameters in model.named_parameters():
-          print(name,':',parameters)
         model = model.eval()
         test_true_cls = []
         test_pred_cls = []

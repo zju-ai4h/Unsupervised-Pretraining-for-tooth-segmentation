@@ -63,4 +63,4 @@ Train from scratch:
  CUDA_VISIBLE_DEVICES=0,1 python ddp_main.py --exp_name=from_scratch
 ```
 ## Inference
-During fine-tuning, we only sample 20,000 faces to train and test. If you want to obtain the labels of unsampled faces, you can apply kNN strategy to the segmenation result. Meanwhile, there are also many method to achieve it, e.g. put all faces into the model and graph-cut. So you can choose the appropriate method for post-processing with your needs.
+During fine-tuning, we only sample 20,000 points to train and test. If you want to obtain the labels of unsampled points, you can apply kNN strategy to the segmentation result. Meanwhile, there are also many methods to achieve it, e.g. putting all faces into the model and graph-cut. So you can choose the appropriate method for post-processing with your needs.

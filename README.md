@@ -38,7 +38,7 @@ For fine-tuning, our codebase is based on [AnTao97/*dgcnn*.pytorch](https://gith
 │   ├── 00000.ply  
 │    ……  
 │   └── XXXXX.ply  
-We process the original ``.stl`` format for faster training. A set of preprocessing tools are provided in ``finetune/data_preprocess``. Follow the README file in the ``finetune`` to generate the fine-tuning dataset. Here we list the details of ``.ply`` format data.  
+We process the original ``.stl`` format and sample 20,000 surfaces for faster training. A set of preprocessing tools are provided in ``finetune/data_preprocess``. Follow the README file in the ``finetune`` to generate the fine-tuning dataset. Here we list the details of ``.ply`` format data.  
 ├── 00000.ply   
 │   ├── Face center[0]    
 │   ├── Face center[1]  

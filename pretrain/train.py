@@ -1,3 +1,9 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+"""
+Code based on https://github.com/facebookresearch/PointContrast/blob/main/pretrain/pointcontrast/lib/ddp_trainer.py
+"""
+
 import os
 import os.path as osp
 import logging

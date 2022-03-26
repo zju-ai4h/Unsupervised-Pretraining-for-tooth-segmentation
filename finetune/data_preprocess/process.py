@@ -1,9 +1,10 @@
 import numpy as np
 import trimesh
 from plyfile import PlyData,PlyElement
+# dataset mean_centroids represents u、l
 mean_centroids = np.array([[1.60083597, -3.74032063, 2.33078412],
                                 [0.5687525, -6.21317224, -6.30563364]])
-
+#obtain shape descriptor
 def get_triangle_struct(mesh):
     return (mesh.triangles - np.expand_dims(mesh.triangles_center, axis=1)).reshape(-1, 9)
 
@@ -29,10 +30,12 @@ for i in range(len(ply_fold)):
     txt_name = stl_name.replace('_aligned.stl', '.txt')
     l = readPredFile(txt_name)
     mesh.apply_translation(-mean_centroids[category])
+    # obtain coordinates
     xyz = np.array(mesh.triangles_center)
     inf_pts = np.linspace(0, xyz.shape[0] - 1, 20000).astype(int).tolist()
     # sampling to 20,000
     xyz = xyz[inf_pts, :]
+    #obtain face normals
     normals = np.array(mesh.face_normals)[inf_pts, :]
     structs = get_triangle_struct(mesh)[inf_pts, :]
     features = np.hstack((structs, normals))

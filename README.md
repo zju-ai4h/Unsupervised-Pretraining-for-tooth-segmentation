@@ -22,7 +22,7 @@ dataset
 ├── 00000.stl  
  ……  
 └── XXXXX.stl  
-The ``.stl`` is a simple 3-Dimensional Intraoral Mesh Scan without label.
+The ``.stl`` is a simple 3-Dimensional Intraoral Mesh Scan without the label.
 ### Finetune
 For fine-tuning, our codebase is based on [AnTao97/*dgcnn*.pytorch](https://github.com/AnTao97/dgcnn.pytorch). Similarly, please put your dataset lists to ``pretrain/dataset`` and rename them as ``teeth_train.txt``,``teeth_val.txt``,``teeth_test.txt``.
 #### Dataset format

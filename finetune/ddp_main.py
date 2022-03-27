@@ -78,7 +78,7 @@ if __name__ == "__main__":
     
     parser.add_argument('--test_batch_size', type=int, default=1, metavar='batch_size', help='Size of batch)')
     
-    parser.add_argument('--epochs', type=int, default=200, metavar='N', help='number of episode to train ')
+    parser.add_argument('--epochs', type=int, default=400, metavar='N', help='number of episode to train ')
     
     parser.add_argument('--lr', type=float, default=0.001, metavar='LR', help='learning rate (default: 0.001, 0.1 if using sgd)')
     

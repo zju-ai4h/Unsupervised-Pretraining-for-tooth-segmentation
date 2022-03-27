@@ -9,7 +9,7 @@ trainset
 ├── XXXXX      
 │   ├── XXXXX.stl  
 │   └── XXXXX.txt  
-# Preprocess dataset  
+# Preprocessed dataset  
 trainset     
 ├── 00000.ply    
  ……     

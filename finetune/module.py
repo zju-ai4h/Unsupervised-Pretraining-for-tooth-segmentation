@@ -152,6 +152,7 @@ def test(model, test_loader, device, args, io):
                   cat = 'l'
                 else:
                   cat = 'u'
+                shape_ious = calculate_shape_IoU(true_label, pre_label, cat)
                 test_shape_ious.append(shape_ious)
 
         test_true_cls = np.concatenate(test_true_cls)

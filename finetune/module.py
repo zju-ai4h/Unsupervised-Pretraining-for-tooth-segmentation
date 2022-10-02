@@ -127,7 +127,7 @@ def train(model, train_loader, val_dataloader, device, args, io):
 
 def test(model, test_loader, device, args, io):
     with torch.no_grad():
-        model.load_state_dict(torch.load(os.path.join(args.model_root)))
+        model.load_state_dict(torch.load(os.path.join(args.model_path)))
         model = model.eval()
         test_true_cls = []
         test_pred_cls = []

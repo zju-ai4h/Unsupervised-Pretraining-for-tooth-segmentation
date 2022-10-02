@@ -156,16 +156,12 @@ def train(model, train_loader, val_dataloader, device, args, io):
 
 def test(model, test_loader, device, args, io):
     with torch.no_grad():
-        # Try to load models
         model.load_state_dict(torch.load(os.path.join(args.model_root)))
-        for name,parameters in model.named_parameters():
-          print(name,':',parameters)
         model = model.eval()
-        test_true_cls = []
-        test_pred_cls = []
-        test_true_seg = []
-        test_pred_seg = []
-        for data, seg, category in test_loader:
+        all_test_acc = []
+        all_avg_per_class_acc = []
+        all_shape_ious = []
+        for index, (data, seg, category) in enumerate(test_loader):
             data, seg, category = data.to(device), seg.to(device), category.to(device).float()
             data = data.permute(0, 2, 1)
             batch_size = data.size()[0]
@@ -173,23 +169,28 @@ def test(model, test_loader, device, args, io):
             seg_pred = seg_pred.permute(0, 2, 1).contiguous()
 
             pred = seg_pred.max(dim=2)[1]
-
             seg_np = seg.cpu().numpy()
             pred_np = pred.detach().cpu().numpy()
 
-            test_true_cls.append(seg_np.reshape(-1))
-            test_pred_cls.append(pred_np.reshape(-1))
-            test_true_seg.append(seg_np)
-            test_pred_seg.append(pred_np)
+            for j in range(seg_np.shape[0]):
+              true_label = seg_np[j]
+              pre_label = pred_np[j]
+              if category[j][0] == 1:
+                cat = 'l'
+              else:
+                cat = 'u'
+              print(category[j],cat)
+              test_acc = metrics.accuracy_score(true_label, pre_label)
+              avg_per_class_acc = metrics.balanced_accuracy_score(true_label, pre_label)
+              # calculate shape_mIoU
+              shape_ious = calculate_shape_IoU(true_label, pre_label, cat)
+              #print(shape_ious)
+              all_test_acc.append(test_acc)
+              all_avg_per_class_acc.append(avg_per_class_acc)
+              all_shape_ious.append(shape_ious)
 
-        test_true_cls = np.concatenate(test_true_cls)
-        test_pred_cls = np.concatenate(test_pred_cls)
-        test_acc = metrics.accuracy_score(test_true_cls, test_pred_cls)
-        avg_per_class_acc = metrics.balanced_accuracy_score(test_true_cls, test_pred_cls)
-        test_true_seg = np.concatenate(test_true_seg, axis=0)
-        test_pred_seg = np.concatenate(test_pred_seg, axis=0)
-        test_ious = calculate_sem_IoU(test_pred_seg, test_true_seg)
-        outstr = 'Test :: test acc: %.6f, test avg acc: %.6f, test iou: %.6f' % (test_acc,
-                                                                                 avg_per_class_acc,
-                                                                                 np.mean(test_ious))
+
+        outstr = 'Test :: test acc: %.6f, test avg acc: %.6f, test iou: %.6f' % (np.mean(all_test_acc),
+                                                                                 np.mean(all_avg_per_class_acc),
+                                                                                 np.mean(all_shape_ious))
         io.cprint(outstr)

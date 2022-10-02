@@ -10,17 +10,30 @@ import torch
 import os
 import logging
 
-def calculate_sem_IoU(pred_np, seg_np, visual=False):
-    I_all = np.zeros(33)
-    U_all = np.zeros(33)
-    for sem_idx in range(seg_np.shape[0]):
-        for sem in range(33):
-            I = np.sum(np.logical_and(pred_np[sem_idx] == sem, seg_np[sem_idx] == sem))
-            U = np.sum(np.logical_or(pred_np[sem_idx] == sem, seg_np[sem_idx] == sem))
-            I_all[sem] += I
-            U_all[sem] += U
+def calculate_shape_IoU(pred_np, seg_np, cat):
+    # pred_np [N,]          --smoothed segmentation label for each point in a point cloud
+    # seg_np  [N,]          --true segmentation label for each point in a point cloud
+    # cat   str             --category( 'u' or 'l')
 
-    return I_all / U_all
+    if cat == 'u':
+        parts = get_iso_label(range(17))
+    else:
+        parts = [0]
+        parts.extend(list(range(17, 33, 1)))
+        parts = get_iso_label(parts)
+    
+    part_ious = []
+    for part in parts:
+        I = np.sum(np.logical_and(pred_np == part, seg_np == part))
+        U = np.sum(np.logical_or(pred_np == part, seg_np == part))
+        if U == 0:
+            iou = 1  # If the union of groundtruth and prediction points is empty, then count part IoU as 1
+        else:
+            iou = I / float(U)
+
+        part_ious.append(iou)
+    shape_ious = np.mean(part_ious)  # part IoU averaged
+    return shape_ious
 
 
 def train(model, train_loader, val_dataloader, device, args, io):
@@ -88,15 +101,14 @@ def train(model, train_loader, val_dataloader, device, args, io):
         if epoch % args.val_stat == 0:
             with torch.no_grad():
                 ####################
-                # Test
+                # Val
                 ####################
                 test_loss = 0.0
                 count = 0.0
                 model.eval()
-                test_true_cls = []
-                test_pred_cls = []
-                test_true_seg = []
-                test_pred_seg = []
+                all_test_acc = []
+                all_avg_per_class_acc = []
+                all_shape_ious = []
 
                 for data, seg, category in val_dataloader:
                     data, seg, category = data.to(device), seg.to(device), category.to(device).float()
@@ -114,25 +126,28 @@ def train(model, train_loader, val_dataloader, device, args, io):
                     test_loss += loss.item() * batch_size
                     seg_np = seg.cpu().numpy()
                     pred_np = pred.detach().cpu().numpy()
-                    test_true_cls.append(seg_np.reshape(-1))
-                    test_pred_cls.append(pred_np.reshape(-1))
-                    test_true_seg.append(seg_np)
-                    test_pred_seg.append(pred_np)
-                test_true_cls = np.concatenate(test_true_cls)
-                test_pred_cls = np.concatenate(test_pred_cls)
-                test_acc = metrics.accuracy_score(test_true_cls, test_pred_cls)
-                avg_per_class_acc = metrics.balanced_accuracy_score(test_true_cls, test_pred_cls)
-                test_true_seg = np.concatenate(test_true_seg, axis=0)
-                test_pred_seg = np.concatenate(test_pred_seg, axis=0)
-                test_ious = calculate_sem_IoU(test_pred_seg, test_true_seg)
-                outstr = 'Val %d, loss: %.6f, test acc: %.6f, test avg acc: %.6f, test iou: %.6f' % (epoch,
-                                                                                                     test_loss * 1.0 / count,
-                                                                                                     test_acc,
-                                                                                                     avg_per_class_acc,
-                                                                                                     np.mean(test_ious))
+
+                    for j in range(seg_np.shape[0]):
+                        true_label = seg_np[j]
+                        pre_label = pred_np[j]
+                        if category[j][0] == 1:
+                            cat = 'l'
+                        else:
+                            cat = 'u'
+                        test_acc = metrics.accuracy_score(true_label, pre_label)
+                        avg_per_class_acc = metrics.balanced_accuracy_score(true_label, pre_label)
+                        # calculate shape_mIoU
+                        shape_ious = calculate_shape_IoU(true_label, pre_label, cat)
+                        #print(shape_ious)
+                        all_test_acc.append(test_acc)
+                        all_avg_per_class_acc.append(avg_per_class_acc)
+                        all_shape_ious.append(shape_ious)
+                outstr = 'Test :: test acc: %.6f, test avg acc: %.6f, test iou: %.6f' % (np.mean(all_test_acc),
+                                                                                        np.mean(all_avg_per_class_acc),
+                                                                                        np.mean(all_shape_ious))
                 io.cprint(outstr)
-                if np.mean(test_ious) >= best_test_iou:
-                    best_test_iou = np.mean(test_ious)
+                if np.mean(all_shape_ious) >= best_test_iou:
+                    best_test_iou = np.mean(all_shape_ious)
                     best_val = epoch
                     torch.save(model.state_dict(), 'outputs/%s/models/checkpoint.pth' % (args.exp_name))
                 outstr = 'Best Val %d, best iou: %.6f' % (best_val, best_test_iou)
@@ -143,6 +158,8 @@ def test(model, test_loader, device, args, io):
     with torch.no_grad():
         # Try to load models
         model.load_state_dict(torch.load(os.path.join(args.model_root)))
+        for name,parameters in model.named_parameters():
+          print(name,':',parameters)
         model = model.eval()
         test_true_cls = []
         test_pred_cls = []

@@ -138,7 +138,6 @@ def train(model, train_loader, val_dataloader, device, args, io):
                         avg_per_class_acc = metrics.balanced_accuracy_score(true_label, pre_label)
                         # calculate shape_mIoU
                         shape_ious = calculate_shape_IoU(true_label, pre_label, cat)
-                        #print(shape_ious)
                         all_test_acc.append(test_acc)
                         all_avg_per_class_acc.append(avg_per_class_acc)
                         all_shape_ious.append(shape_ious)
@@ -179,12 +178,10 @@ def test(model, test_loader, device, args, io):
                 cat = 'l'
               else:
                 cat = 'u'
-              print(category[j],cat)
               test_acc = metrics.accuracy_score(true_label, pre_label)
               avg_per_class_acc = metrics.balanced_accuracy_score(true_label, pre_label)
               # calculate shape_mIoU
               shape_ious = calculate_shape_IoU(true_label, pre_label, cat)
-              #print(shape_ious)
               all_test_acc.append(test_acc)
               all_avg_per_class_acc.append(avg_per_class_acc)
               all_shape_ious.append(shape_ious)
